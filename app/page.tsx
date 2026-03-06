@@ -14,6 +14,7 @@ import EarningsDeductionsForm from '@/components/EarningsDeductionsForm';
 import BankDetailsForm from '@/components/BankDetailsForm';
 import Button from '@/components/Button';
 import PayslipPreview from '@/components/PayslipPreview';
+import { getHtml2CanvasOnCloneCallback, stripUnsupportedColors } from '@/lib/colorUtils';
 import {
   CompanyInfo,
   EmployeeInfo,
@@ -163,26 +164,51 @@ export default function Home() {
     setError(null);
 
     try {
-      const canvas = await html2canvas(payslipPreviewRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-      });
+      // Clone the element to avoid modifying the original
+      const clonedElement = payslipPreviewRef.current.cloneNode(true) as HTMLElement;
+      
+      // Create a temporary container off-screen
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = payslipPreviewRef.current.clientWidth + 'px';
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
+      try {
+        // Strip unsupported colors from the cloned element
+        stripUnsupportedColors(clonedElement);
 
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Render with html2canvas with double protection:
+        // 1. Pre-stripped colors (stripUnsupportedColors)
+        // 2. onclone callback for any remaining color functions
+        const canvas = await html2canvas(clonedElement, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          onclone: getHtml2CanvasOnCloneCallback(),
+        });
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`payslip-${employee.employeeId}-${payslipData?.payslipId}.pdf`);
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+        });
 
-      setSuccessMessage('PDF downloaded successfully!');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(`payslip-${employee.employeeId}-${payslipData?.payslipId}.pdf`);
+
+        setSuccessMessage('PDF downloaded successfully!');
+      } finally {
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download PDF');
     } finally {
