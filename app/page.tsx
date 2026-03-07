@@ -164,70 +164,72 @@ export default function Home() {
     setError(null);
 
     try {
-      // Clone the element to avoid modifying the original
-      const clonedElement = payslipPreviewRef.current.cloneNode(true) as HTMLElement;
-      
-      // Create a temporary container off-screen
+      const element = payslipPreviewRef.current;
+
+      // Clone element
+      const clonedElement = element.cloneNode(true) as HTMLElement;
+
+      // Create offscreen container
       const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '-9999px';
-      tempContainer.style.width = payslipPreviewRef.current.clientWidth + 'px';
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.top = '-10000px';
+      tempContainer.style.left = '-10000px';
+      tempContainer.style.width = '794px'; // exact A4 width
+      tempContainer.style.background = '#ffffff';
       tempContainer.appendChild(clonedElement);
+
       document.body.appendChild(tempContainer);
 
-      try {
-        // Strip unsupported colors from the cloned element
-        stripUnsupportedColors(clonedElement);
+      // Remove unsupported colors
+      stripUnsupportedColors(clonedElement);
 
-        // Render with html2canvas with double protection:
-        // 1. Pre-stripped colors (stripUnsupportedColors)
-        // 2. onclone callback for any remaining color functions
-        const canvas = await html2canvas(clonedElement, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          onclone: getHtml2CanvasOnCloneCallback(),
-        });
+      const canvas = await html2canvas(clonedElement, {
+        scale: 3, // high quality
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true,
+        onclone: getHtml2CanvasOnCloneCallback(),
+      });
 
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
+      const imgData = canvas.toDataURL('image/png');
 
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save(`payslip-${employee.employeeId}-${payslipData?.payslipId}.pdf`);
+      const pageWidth = 210;
+      const pageHeight = 297;
 
-        setSuccessMessage('PDF downloaded successfully!');
-      } finally {
-        // Clean up temporary container
-        document.body.removeChild(tempContainer);
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
+
+      pdf.save(`payslip-${employee.employeeId}-${payslipData?.payslipId}.pdf`);
+
+      document.body.removeChild(tempContainer);
+
+      setSuccessMessage('PDF downloaded successfully!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download PDF');
     } finally {
       setLoading(false);
     }
   };
-
-  // Print payslip
-  const handlePrint = () => {
-    if (payslipPreviewRef.current) {
-      const printWindow = window.open('', '', 'width=800,height=600');
-      if (printWindow) {
-        printWindow.document.write(payslipPreviewRef.current.innerHTML);
-        printWindow.document.close();
-        printWindow.print();
-      }
-    }
-  };
-
   // Reset form
   const handleResetForm = () => {
     setCompany({ name: '', address: '', city: '', pincode: '', country: 'India' });
@@ -247,6 +249,10 @@ export default function Home() {
     setError(null);
     setSuccessMessage(null);
   };
+
+  function handlePrint(): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
