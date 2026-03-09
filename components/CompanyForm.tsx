@@ -94,7 +94,7 @@ export default function CompanyForm({ data, onChange, onLogoUpload }: CompanyFor
         if (onLogoUpload) {
           onLogoUpload(result.data.url);
         }
-        setErrors({ ...errors, logo: undefined });
+        setErrors({ ...errors, logo: '' });
       } else {
         setErrors({ ...errors, logo: result.error || 'Upload failed' });
       }
