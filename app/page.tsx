@@ -28,6 +28,7 @@ import {
 export default function Home() {
   const payslipPreviewRef = useRef<HTMLDivElement>(null);
 
+
   const [currentStep, setCurrentStep] = useState<
     'form' | 'preview' | 'success'
   >('form');
@@ -157,6 +158,8 @@ export default function Home() {
   };
 
   // Generate and download PDF
+ // Generate and download PDF
+  // Generate and download PDF
   const handleDownloadPDF = async () => {
     if (!payslipPreviewRef.current) return;
 
@@ -166,29 +169,19 @@ export default function Home() {
     try {
       const element = payslipPreviewRef.current;
 
-      // Clone element
-      const clonedElement = element.cloneNode(true) as HTMLElement;
+      // Bake computed rgb() inline so html2canvas never parses stylesheets
+      stripUnsupportedColors(element);
 
-      // Create offscreen container
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'fixed';
-      tempContainer.style.top = '-10000px';
-      tempContainer.style.left = '-10000px';
-      tempContainer.style.width = '794px'; // exact A4 width
-      tempContainer.style.background = '#ffffff';
-      tempContainer.appendChild(clonedElement);
-
-      document.body.appendChild(tempContainer);
-
-      // Remove unsupported colors
-      stripUnsupportedColors(clonedElement);
-
-      const canvas = await html2canvas(clonedElement, {
-        scale: 3, // high quality
+      const canvas = await html2canvas(element, {
+        scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
         allowTaint: true,
+        // Do NOT set width — let html2canvas measure the element naturally
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: 1200, // wide enough so nothing wraps or clips
         onclone: getHtml2CanvasOnCloneCallback(),
       });
 
@@ -200,8 +193,8 @@ export default function Home() {
         format: 'a4',
       });
 
-      const pageWidth = 210;
-      const pageHeight = 297;
+      const pageWidth = 210;  // A4 width mm
+      const pageHeight = 297; // A4 height mm
 
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -220,9 +213,6 @@ export default function Home() {
       }
 
       pdf.save(`payslip-${employee.employeeId}-${payslipData?.payslipId}.pdf`);
-
-      document.body.removeChild(tempContainer);
-
       setSuccessMessage('PDF downloaded successfully!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download PDF');
@@ -320,6 +310,7 @@ export default function Home() {
             <div ref={payslipPreviewRef} className="mb-8">
               <PayslipPreview payslip={payslipData} />
             </div>
+
 
             {/* Action Buttons */}
             <div className="flex gap-4 justify-center pb-8 flex-wrap">
