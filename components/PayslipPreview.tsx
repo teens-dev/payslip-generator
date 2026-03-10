@@ -48,7 +48,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
           <h1 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 4px 0' }}>
             {payslip.company.name}
           </h1>
-          <p
+          {/* <p
             style={{
               fontSize: '12px',
               margin: '0',
@@ -61,7 +61,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
           <p style={{ fontSize: '12px', margin: '0' }}>{payslip.company.country}</p>
           {payslip.company.email && (
             <p style={{ fontSize: '12px', margin: '0' }}>{payslip.company.email}</p>
-          )}
+          )} */}
         </div>
 
         <div style={{ textAlign: 'right' }}>
@@ -85,7 +85,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         <div>
           <h3
             style={{
-              fontSize: '12px',
+              fontSize: '13px',
               fontWeight: 'bold',
               marginBottom: '8px',
               textTransform: 'uppercase',
@@ -124,7 +124,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         <div>
           <h3
             style={{
-              fontSize: '12px',
+              fontSize: '13px',
               fontWeight: 'bold',
               marginBottom: '8px',
               textTransform: 'uppercase',
