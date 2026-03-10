@@ -45,10 +45,17 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         )}
 
         <div style={{ textAlign: 'center', flex: 1, margin: '0 16px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 4px 0' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 4px 0' }}>
             {payslip.company.name}
           </h1>
-          <p style={{ fontSize: '12px', margin: '0' }}>
+          <p
+            style={{
+              fontSize: '12px',
+              margin: '0',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
+            }}
+          >
             {payslip.company.address}, {payslip.company.city} - {payslip.company.pincode}
           </p>
           <p style={{ fontSize: '12px', margin: '0' }}>{payslip.company.country}</p>
@@ -82,16 +89,36 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
               fontWeight: 'bold',
               marginBottom: '8px',
               textTransform: 'uppercase',
-              color: '#374151',
+              color: '#010a18',
             }}
           >
             Employee Information
           </h3>
-          <p style={{ margin: '2px 0' }}><strong>Name:</strong> {payslip.employee.name}</p>
-          <p style={{ margin: '2px 0' }}><strong>ID:</strong> {payslip.employee.employeeId}</p>
-          <p style={{ margin: '2px 0' }}><strong>Designation:</strong> {payslip.employee.designation}</p>
-          <p style={{ margin: '2px 0' }}><strong>Department:</strong> {payslip.employee.department}</p>
-          <p style={{ margin: '2px 0' }}><strong>Date of Joining:</strong> {formatDate(payslip.employee.dateOfJoining)}</p>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr',
+              rowGap: '4px',
+              columnGap: '8px',
+              fontSize: '13px'
+            }}
+          >
+            <div><strong>Name</strong></div>
+            <div style={{ wordBreak: "break-word" }}>{payslip.employee.name}</div>
+
+            <div><strong>ID</strong></div>
+            <div>{payslip.employee.employeeId}</div>
+
+            <div><strong>Designation</strong></div>
+            <div style={{ wordBreak: "break-word" }}>{payslip.employee.designation}</div>
+
+            <div><strong>Department</strong></div>
+            <div style={{ wordBreak: "break-word" }}>{payslip.employee.department}</div>
+
+            <div><strong>Date of Joining</strong></div>
+            <div>{formatDate(payslip.employee.dateOfJoining)}</div>
+          </div>
         </div>
 
         <div>
@@ -101,21 +128,36 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
               fontWeight: 'bold',
               marginBottom: '8px',
               textTransform: 'uppercase',
-              color: '#374151',
+              color: '#00040a',
             }}
           >
             Pay Period
           </h3>
-          <p style={{ margin: '2px 0' }}>
-            <strong>Month:</strong>{' '}
-            {new Date(payslip.payPeriod.year, payslip.payPeriod.month - 1).toLocaleDateString(
-              'en-US',
-              { month: 'long', year: 'numeric' }
-            )}
-          </p>
-          <p style={{ margin: '2px 0' }}><strong>Paid Days:</strong> {payslip.payPeriod.paidDays}</p>
-          <p style={{ margin: '2px 0' }}><strong>Loss of Pay:</strong> {payslip.payPeriod.lossOfPayDays}</p>
-          <p style={{ margin: '2px 0' }}><strong>Pay Date:</strong> {formatDate(payslip.payPeriod.payDate)}</p>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '150px 1fr',
+              rowGap: '4px',
+              columnGap: '8px',
+              fontSize: '13px'
+            }}
+          >
+            <div><strong>Month</strong></div>
+            <div style={{ wordBreak: "break-word" }}>
+              {new Date(
+                payslip.payPeriod.year,
+                payslip.payPeriod.month - 1
+              ).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </div>
+            <div><strong>Paid Days</strong></div>
+            <div>{payslip.payPeriod.paidDays}</div>
+
+            <div><strong>Loss of Pay</strong></div>
+            <div>{payslip.payPeriod.lossOfPayDays}</div>
+
+            <div><strong>Pay Date</strong></div>
+            <div>{formatDate(payslip.payPeriod.payDate)}</div>
+          </div>
         </div>
       </div>
 
