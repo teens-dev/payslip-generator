@@ -6,9 +6,14 @@ import { formatDate, formatIndianCurrency } from '@/lib/utils';
 
 interface PayslipPreviewProps {
   payslip: PayslipTemplate;
+  consoleLog?: boolean; // Optional prop to enable console logging of the payslip data
 }
 
-export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
+export default function PayslipPreview({ payslip, consoleLog }: PayslipPreviewProps) {
+  if (consoleLog) {
+    console.log(payslip);
+  }
+
   return (
     <div
       id="payslip-print"
@@ -31,7 +36,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '32px',
+          marginBottom: '15px',
           paddingBottom: '16px',
           borderBottom: '1px solid #d1d5db',
         }}
@@ -66,7 +71,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
 
         <div style={{ textAlign: 'right' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 2px 0' }}>PAYSLIP</h2>
-          <p style={{ fontSize: '13px', fontWeight: '600', margin: '0 0 2px 0', color: '#374151' }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', margin: '0 0 2px 0', color: '#374151' }}>
             {new Date(payslip.payPeriod.year, payslip.payPeriod.month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </p>
           {/* <p style={{ fontSize: '11px', margin: '0', color: '#6b7280' }}>{payslip.payslipId}</p> */}
@@ -74,6 +79,17 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
       </div>
 
       {/* Employee Info */}
+      <h3 style={{
+        fontSize: '13px',
+        fontWeight: 'bold',
+        marginBottom: '15px',
+        textTransform: 'uppercase',
+        color: '#010a18',
+        textAlign: 'center',
+      }}>
+        Employee Information
+      </h3>
+
       <div
         style={{
           display: 'grid',
@@ -83,17 +99,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         }}
       >
         <div>
-          <h3
-            style={{
-              fontSize: '13px',
-              fontWeight: 'bold',
-              marginBottom: '8px',
-              textTransform: 'uppercase',
-              color: '#010a18',
-            }}
-          >
-            Employee Information
-          </h3>
+
 
           <div
             style={{
@@ -122,7 +128,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         </div>
 
         <div>
-          <h3
+          {/* <h3
             style={{
               fontSize: '13px',
               fontWeight: 'bold',
@@ -132,7 +138,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
             }}
           >
             Pay Period
-          </h3>
+          </h3> */}
           <div
             style={{
               display: 'grid',
@@ -157,8 +163,63 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
 
             <div><strong>Pay Date</strong></div>
             <div>{formatDate(payslip.payPeriod.payDate)}</div>
+
+            {payslip.bankDetails && (
+              <>
+
+                {payslip.bankDetails.bankName && (
+                  <>
+                    <div><strong>Bank Name</strong></div>
+                    <div>{payslip.bankDetails.bankName}</div>
+                  </>
+                )}
+
+
+                {payslip.bankDetails.accountNumber && (
+                  <>
+                    <div><strong>Account Number</strong></div>
+                    <div>{payslip.bankDetails.accountNumber}</div>
+                  </>
+                )}
+
+
+                {payslip.bankDetails.ifscCode && (
+                  <>
+                    <div><strong>IFSC Code</strong></div>
+                    <div>{payslip.bankDetails.ifscCode}</div>
+                  </>
+                )}
+
+                {payslip.bankDetails.uanNumber && (
+                  <>
+                    <div><strong>UAN Number</strong></div>
+                    <div>{payslip.bankDetails.uanNumber}</div>
+                  </>
+                )}
+
+                {payslip.bankDetails.esiNumber && (
+                  <>
+                    <div><strong>ESI Number</strong></div>
+                    <div>{payslip.bankDetails.esiNumber}</div>
+                  </>
+                )}
+
+                {payslip.bankDetails.panNumber && (
+                  <>
+                    <div><strong>PAN Number</strong></div>
+                    <div>{payslip.bankDetails.panNumber}</div>
+                  </>
+                )}
+              </>
+            )}
           </div>
+
+
+
+
+
         </div>
+
       </div>
 
       {/* Earnings & Deductions */}
@@ -314,6 +375,8 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
         </p>
       </div>
 
+
+
       {/* Footer */}
       <div
         style={{
@@ -329,7 +392,7 @@ export default function PayslipPreview({ payslip }: PayslipPreviewProps) {
           Teens Software Solutions LLP, 3<sup>rd</sup> Floor, 303, Plot no. 56, Newmark House, Patrika Nagar, HITEC City, Hyderabad, Telangana 500081
         </p>
         <p style={{ margin: '0', fontWeight: '500' }}>
-          Contact: +91 81255 24545; Mail: info@teensss.com
+          Contact: +91 81255 24545; Mail: info@teensss.com, info@teensitsolutions.com
         </p>
         <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: '#9ca3af' }}>
           This is a system-generated payslip. No signature required. &nbsp;|&nbsp; Generated on {new Date().toLocaleDateString('en-IN')}
