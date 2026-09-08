@@ -317,8 +317,7 @@ export default function PayslipPreview({ payslip, consoleLog }: PayslipPreviewPr
         </p>
 
         <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: '#9ca3af' }}>
-          This is a system-generated payslip. No signature required. |
-          Generated on {new Date().toLocaleDateString('en-IN')}
+          This is a system-generated payslip. No signature required.
         </p>
       </div>
 
