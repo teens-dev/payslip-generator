@@ -24,6 +24,14 @@ const MONTHS = [
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 
+const formatINR = (value: number) =>
+  (Number(value) || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
 export default function Home() {
   const payslipPreviewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,9 +79,9 @@ export default function Home() {
 
   const [payslipData, setPayslipData] = useState<PayslipTemplate | null>(null);
 
-  const grossEarnings = earnings.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalDeductions = deductions.reduce((s, d) => s + (Number(d.amount) || 0), 0);
-  const netPay = grossEarnings - totalDeductions;
+  const grossEarnings = round2(earnings.reduce((s, e) => s + (Number(e.amount) || 0), 0));
+  const totalDeductions = round2(deductions.reduce((s, d) => s + (Number(d.amount) || 0), 0));
+  const netPay = round2(grossEarnings - totalDeductions);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -398,8 +406,6 @@ export default function Home() {
                   <input type="number" style={inputStyle} placeholder="0" value={payPeriod.lossOfPayDays} onChange={e => setPayPeriod(p => ({ ...p, lossOfPayDays: Number(e.target.value) }))} />
                 </div>
               </div>
-
-
             </div>
             <BankDetailsForm
               data={bankDetails}
@@ -434,6 +440,7 @@ export default function Home() {
                           <td style={{ border: '1px solid #e5e7eb', padding: '4px 6px' }}>
                             <input
                               type="number"
+                              step="0.01"
                               style={{ ...inputStyle, border: 'none', padding: '4px 4px', textAlign: 'right', fontSize: '13px' }}
                               value={item.amount}
                               onChange={e => updateEarning(item.id, 'amount', parseFloat(e.target.value) || 0)}
@@ -446,7 +453,7 @@ export default function Home() {
                       ))}
                       <tr style={{ backgroundColor: '#f0fdf4' }}>
                         <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', fontWeight: '600', color: '#15803d' }}>Gross Earnings</td>
-                        <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', textAlign: 'right', fontWeight: '600', color: '#15803d' }}>₹ {grossEarnings.toLocaleString('en-IN')}</td>
+                        <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', textAlign: 'right', fontWeight: '600', color: '#15803d' }}>₹ {formatINR(grossEarnings)}</td>
                         <td style={{ border: '1px solid #e5e7eb' }}></td>
                       </tr>
                     </tbody>
@@ -480,6 +487,7 @@ export default function Home() {
                           <td style={{ border: '1px solid #e5e7eb', padding: '4px 6px' }}>
                             <input
                               type="number"
+                              step="0.01"
                               style={{ ...inputStyle, border: 'none', padding: '4px 4px', textAlign: 'right', fontSize: '13px' }}
                               value={item.amount}
                               onChange={e => updateDeduction(item.id, 'amount', parseFloat(e.target.value) || 0)}
@@ -492,7 +500,7 @@ export default function Home() {
                       ))}
                       <tr style={{ backgroundColor: '#fef2f2' }}>
                         <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', fontWeight: '600', color: '#dc2626' }}>Total Deductions</td>
-                        <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', textAlign: 'right', fontWeight: '600', color: '#dc2626' }}>₹ {totalDeductions.toLocaleString('en-IN')}</td>
+                        <td style={{ border: '1px solid #e5e7eb', padding: '8px 10px', textAlign: 'right', fontWeight: '600', color: '#dc2626' }}>₹ {formatINR(totalDeductions)}</td>
                         <td style={{ border: '1px solid #e5e7eb' }}></td>
                       </tr>
                     </tbody>
@@ -510,7 +518,7 @@ export default function Home() {
                   <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#9ca3af' }}>Gross Earnings - Total Deductions</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: '#1e3a5f' }}>₹ {netPay.toLocaleString('en-IN')}</p>
+                  <p style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: '#1e3a5f' }}>₹ {formatINR(netPay)}</p>
                 </div>
               </div>
             </div>
